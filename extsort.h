@@ -9,5 +9,6 @@ void usage();
 void error(const char* msg);
 void multimerge(run_t** runs, char* input_prefix, int num_runs, int output_fd, int base);
 void verify(char* filename);
+long get_time_usecs();
 
 #endif

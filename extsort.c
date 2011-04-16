@@ -46,6 +46,8 @@ int main(int argc, char* argv[])
     char input_prefix[] = "foo_";
     char output_prefix[] = "bar_";
 
+    long start_usecs = get_time_usecs();
+
     while(num_runs > 1) {
         printf("Iterate: %lu runs left\n", num_runs);
         // Number of ways we can merge at once
@@ -121,13 +123,13 @@ int main(int argc, char* argv[])
             else {
                 for(int i=0; i<num_runs_in_merge; i++) {
                     snprintf(filename, 100, "%s%lu.dat", input_prefix, run_counter);
-                    printf("Reading in: %s\n", filename);
+                    PRINTF("Reading in: %s\n", filename);
                     run_counter++;
                 }
             }
 
             snprintf(filename, 100, "%s%d.dat", output_prefix, i);
-            printf("Writing out: %s\n", filename);
+            PRINTF("Writing out: %s\n", filename);
             int output_fd = open(filename, O_CREAT|O_WRONLY|O_TRUNC, 
                     S_IRWXU|S_IRWXG);
             // Merge them together
@@ -163,7 +165,10 @@ int main(int argc, char* argv[])
         num_runs = num_merges;
     }
 
+    long end_usecs = get_time_usecs();
+    double secs = (double)(end_usecs - start_usecs) / (double)1000000;
     printf("Done sorting.\n");
+    printf("Sorting took %.02f seconds.\n", secs);
 #ifdef DEBUG
     snprintf(filename, 100, "%s%d.dat", input_prefix, 0);
     verify(filename);
@@ -368,4 +373,14 @@ void error(const char* msg)
     perror(msg);
     exit(-1);
 }
+ 
+long get_time_usecs()
+{
+    struct timeval time;
+    struct timezone tz;
+    memset(&tz, '\0', sizeof(timezone));
+    gettimeofday(&time, &tz);
+    long usecs = time.tv_sec*1000000 + time.tv_usec;
 
+    return usecs;
+}
